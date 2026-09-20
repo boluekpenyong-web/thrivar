@@ -1,34 +1,47 @@
-# Thrivar — Phase 2 (Six Pillars)
+# Thrivar — Phase 2b (Transformation Map)
 
-Builds on the working Phase 1 foundation (auth, hosting, database) with the
-real Six Pillars assessment: Identity, Belonging, Purpose, Capacity,
-Direction, Agency - plus per-pillar Current State and Current Edge
-detection, all rule-based (no AI yet - that's the next step).
+Builds on Phase 2a's Six Pillars assessment by adding the AI-generated
+Transformation Map: a real narrative interpretation of your assessment
+results, generated server-side and cached to your profile.
 
-## 1. Run the new schema
+## 1. Get an Anthropic API key (new requirement this phase)
 
-In Supabase: SQL Editor -> New query -> paste in `supabase/schema.sql` ->
-Run. This replaces the old six-dimension `profiles` table with the new
-six-pillar structure. Safe to do since no real users have signed up yet.
+1. Go to console.anthropic.com, sign in (or create an account)
+2. Go to API Keys, create a new key
+3. Copy it somewhere safe - you won't be able to see it again after this
+4. This is a SECRET key - never paste it into a chat, never commit it to
+   GitHub. It only ever goes into Vercel's environment variables (step 3).
 
-## 2. Deploy
+## 2. Run the updated schema
 
-Upload this whole folder's contents to your GitHub repo (same way as
-before - drag the closed folder in, not individual open files), then
-Vercel will redeploy automatically.
+Supabase -> SQL Editor -> New query -> paste in `supabase/schema.sql` -> Run
+(choose "Run and enable RLS" if asked). This adds the new
+`transformation_map` column and the UPDATE permission the new feature needs.
 
-## 3. Test
+## 3. Add the new environment variable in Vercel
 
-Log in (or sign up fresh). You should be redirected to `/assessment`
-automatically since the schema reset means no profile exists yet. Answer
-all 12 questions (two per pillar). On the last one you'll land on
-`/dashboard`, now showing your six pillar states and your Current Edge -
-either a specific one, or an honest "not enough evidence yet" if your
-pillars are closely balanced.
+Project -> Settings -> Environment Variables -> add:
 
-## What's next (Phase 2b)
+    ANTHROPIC_API_KEY = (the key from step 1)
 
-The Transformation Map: AI-generated narrative (what's changing, what's
-staying, what's creating tension, what matters now) built on top of this
-data, validated against real assessment results before it's wired into
-Home.
+Keep the two existing Supabase variables as they are.
+
+## 4. Deploy
+
+Upload this whole folder to GitHub the same way as before (drag the closed
+folder in, not individual files), then redeploy in Vercel once the env
+variable from step 3 is saved.
+
+## 5. Test
+
+Take the assessment again (or log in fresh). After the last question you'll
+see "Reading your landscape..." for a few seconds while the AI generates
+your Transformation Map, then land on a dashboard showing the real
+narrative - what's changing, what's staying, current tension (if genuinely
+present), what's in the way, your Current Edge in context, what matters
+now, and your next move.
+
+## What's next
+
+Home / NOW screen, Personalized Plan, Journal, minimal Becoming Log, then
+the Coach with real context and support modes.

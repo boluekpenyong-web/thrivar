@@ -21,16 +21,10 @@ export default function Home() {
           <p>Build where you&apos;re going.</p>
         </div>
         <div className="flex gap-4">
-          <Link
-            href="/signup"
-            className="px-8 py-3.5 rounded-full bg-cobalt text-cream text-sm"
-          >
+          <Link href="/signup" className="px-8 py-3.5 rounded-full bg-cobalt text-cream text-sm">
             Let&apos;s begin
           </Link>
-          <Link
-            href="/login"
-            className="px-8 py-3.5 rounded-full border border-cobalt/30 text-cobalt text-sm"
-          >
+          <Link href="/login" className="px-8 py-3.5 rounded-full border border-cobalt/30 text-cobalt text-sm">
             Log in
           </Link>
         </div>

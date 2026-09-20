@@ -18,6 +18,7 @@ export default function AssessmentPage() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [val, setVal] = useState(5);
   const [saving, setSaving] = useState(false);
+  const [generatingMap, setGeneratingMap] = useState(false);
   const [error, setError] = useState("");
 
   const allQuestions: QuestionRef[] = useMemo(() => {
@@ -58,20 +59,40 @@ export default function AssessmentPage() {
       return;
     }
 
-    const { error: insertError } = await supabase.from("profiles").insert({
-      user_id: user.id,
-      pillar_scores: computed.pillarScores,
-      pillar_states: computed.pillarStates,
-      primary_edge: computed.primaryEdge,
-      secondary_tension: computed.secondaryTension,
-    });
+    const { data: inserted, error: insertError } = await supabase
+      .from("profiles")
+      .insert({
+        user_id: user.id,
+        pillar_scores: computed.pillarScores,
+        pillar_states: computed.pillarStates,
+        primary_edge: computed.primaryEdge,
+        secondary_tension: computed.secondaryTension,
+      })
+      .select("id")
+      .single();
 
     setSaving(false);
 
-    if (insertError) {
-      setError(insertError.message);
+    if (insertError || !inserted) {
+      setError(insertError?.message || "Something went wrong saving your results.");
       return;
     }
+
+    // Generate the Transformation Map narrative before landing on the
+    // dashboard, so it's ready the first time they see it. If this fails
+    // for any reason, we still let them through - the dashboard falls
+    // back to the raw pillar view rather than blocking them here.
+    setGeneratingMap(true);
+    try {
+      await fetch("/api/generate-map", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profileId: inserted.id }),
+      });
+    } catch {
+      // Non-fatal - dashboard handles a missing map gracefully.
+    }
+    setGeneratingMap(false);
 
     router.push("/dashboard");
     router.refresh();
@@ -83,13 +104,21 @@ export default function AssessmentPage() {
     setVal(5);
   }
 
+  if (generatingMap) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-cream px-6 text-center">
+        <div>
+          <p className="font-display text-2xl text-cobalt mb-2">Reading your landscape...</p>
+          <p className="text-sm text-ink/50">This takes a few seconds.</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen flex flex-col bg-cream">
       <div className="h-1 bg-sandSoft">
-        <div
-          className="h-1 bg-electric transition-all duration-500"
-          style={{ width: `${pct}%` }}
-        />
+        <div className="h-1 bg-electric transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-7">
@@ -99,9 +128,7 @@ export default function AssessmentPage() {
             Question {qIndex + 1} of {allQuestions.length}
           </p>
 
-          <h2 className="font-display text-3xl mb-12 leading-snug text-ink">
-            {current.text}
-          </h2>
+          <h2 className="font-display text-3xl mb-12 leading-snug text-ink">{current.text}</h2>
 
           <div className="mb-3 flex justify-between text-sm text-ink/45">
             <span>Not true</span>
@@ -119,11 +146,7 @@ export default function AssessmentPage() {
           {error && <p className="text-sm text-red-600 mt-4">{error}</p>}
 
           <div className="flex justify-between items-center mt-10">
-            <button
-              onClick={handleBack}
-              disabled={qIndex === 0 || saving}
-              className="text-sm text-ink/40 disabled:opacity-0"
-            >
+            <button onClick={handleBack} disabled={qIndex === 0 || saving} className="text-sm text-ink/40 disabled:opacity-0">
               Back
             </button>
             <button

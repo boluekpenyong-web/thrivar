@@ -3,6 +3,20 @@ import { createClient } from "@/lib/supabase/server";
 import { PILLARS, type PillarKey } from "@/lib/thrivar/model";
 import LogoutButton from "./LogoutButton";
 
+interface TransformationMap {
+  whereYouAre: string;
+  strongestFoundation: string;
+  primaryStrain: string;
+  secondaryStrain: string | null;
+  whatsChanging: string[];
+  whatsStaying: string[];
+  tension: { wants: string; protecting: string; description: string } | null;
+  whatsInTheWay: string[];
+  currentEdgeNote: string;
+  whatMattersNow: string;
+  nextMove: string;
+}
+
 export default async function DashboardPage() {
   const supabase = createClient();
   const {
@@ -28,6 +42,7 @@ export default async function DashboardPage() {
 
   const scores = profile.pillar_scores as Record<PillarKey, number>;
   const states = profile.pillar_states as Record<PillarKey, string>;
+  const map = profile.transformation_map as TransformationMap | null;
 
   return (
     <main className="min-h-screen bg-cream px-6 py-10">
@@ -37,12 +52,103 @@ export default async function DashboardPage() {
           <LogoutButton />
         </div>
 
-        <p className="text-sm text-ink/50 mb-2">Your current landscape</p>
-        <h1 className="font-display text-3xl text-ink mb-10">
-          Where you are right now
-        </h1>
+        {map ? (
+          <>
+            <p className="text-sm text-ink/50 mb-2">Your current landscape</p>
+            <h1 className="font-display text-3xl text-ink mb-10">{map.whereYouAre}</h1>
 
-        <div className="space-y-5 mb-10">
+            <div className="grid grid-cols-2 gap-4 mb-10">
+              <div className="rounded-2xl p-5 bg-white border border-ink/10">
+                <p className="text-xs text-ink/45 mb-1">Strongest foundation</p>
+                <p className="text-ink font-medium">{map.strongestFoundation}</p>
+              </div>
+              <div className="rounded-2xl p-5 bg-white border border-ink/10">
+                <p className="text-xs text-ink/45 mb-1">Primary strain</p>
+                <p className="text-ink font-medium">{map.primaryStrain}</p>
+                {map.secondaryStrain && (
+                  <p className="text-xs text-ink/45 mt-1">Also: {map.secondaryStrain}</p>
+                )}
+              </div>
+            </div>
+
+            {map.whatsChanging.length > 0 && (
+              <div className="mb-8">
+                <p className="text-sm text-ink/50 mb-2">What&apos;s changing</p>
+                <ul className="space-y-1.5">
+                  {map.whatsChanging.map((line, i) => (
+                    <li key={i} className="text-ink/80 text-sm">- {line}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {map.whatsStaying.length > 0 && (
+              <div className="mb-8">
+                <p className="text-sm text-ink/50 mb-2">What&apos;s staying</p>
+                <ul className="space-y-1.5">
+                  {map.whatsStaying.map((line, i) => (
+                    <li key={i} className="text-ink/80 text-sm">- {line}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {map.tension && (
+              <div className="rounded-2xl p-6 bg-sandSoft mb-8">
+                <p className="text-sm text-ink/50 mb-2">Current tension</p>
+                <p className="text-sm text-ink/80 leading-relaxed">
+                  <span className="font-medium">What you want:</span> {map.tension.wants}
+                  <br />
+                  <span className="font-medium">What you&apos;re protecting:</span> {map.tension.protecting}
+                </p>
+                <p className="text-sm text-ink/70 mt-3 leading-relaxed">{map.tension.description}</p>
+              </div>
+            )}
+
+            {map.whatsInTheWay.length > 0 && (
+              <div className="mb-8">
+                <p className="text-sm text-ink/50 mb-2">What&apos;s getting in the way</p>
+                <ul className="space-y-1.5">
+                  {map.whatsInTheWay.map((line, i) => (
+                    <li key={i} className="text-ink/80 text-sm">- {line}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="rounded-2xl p-6 bg-cobalt text-cream mb-8">
+              <p className="text-sm text-cream/70 mb-2">Current Edge</p>
+              {profile.primary_edge ? (
+                <p className="font-display text-2xl mb-2">{profile.primary_edge}</p>
+              ) : (
+                <p className="font-display text-xl mb-2">Not enough evidence yet</p>
+              )}
+              <p className="text-sm text-cream/80 leading-relaxed">{map.currentEdgeNote}</p>
+            </div>
+
+            <div className="mb-8">
+              <p className="text-sm text-ink/50 mb-2">What matters now</p>
+              <p className="text-ink/80 leading-relaxed">{map.whatMattersNow}</p>
+            </div>
+
+            <div className="rounded-2xl p-6 border-2 border-cobalt mb-10">
+              <p className="text-sm text-cobalt mb-2">Your next meaningful move</p>
+              <p className="font-display text-xl text-ink">{map.nextMove}</p>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-ink/50 mb-2">Your current landscape</p>
+            <h1 className="font-display text-3xl text-ink mb-6">Where you are right now</h1>
+            <p className="text-sm text-ink/50 mb-10 leading-relaxed">
+              Your full Transformation Map couldn&apos;t be generated this time - here&apos;s the raw
+              picture from your assessment instead.
+            </p>
+          </>
+        )}
+
+        <div className="space-y-5 mb-6">
+          <p className="text-sm text-ink/50">Your six pillars, in detail</p>
           {PILLARS.map((p) => (
             <div key={p.key} className="flex items-center justify-between py-3 border-b border-ink/10">
               <div>
@@ -53,32 +159,6 @@ export default async function DashboardPage() {
             </div>
           ))}
         </div>
-
-        <div className="rounded-2xl p-6 bg-cobalt text-cream mb-10">
-          <p className="text-sm text-cream/70 mb-2">Current Edge</p>
-          {profile.primary_edge ? (
-            <>
-              <p className="font-display text-2xl mb-1">{profile.primary_edge}</p>
-              {profile.secondary_tension && (
-                <p className="text-sm text-cream/75">
-                  Also worth attention: {profile.secondary_tension}
-                </p>
-              )}
-            </>
-          ) : (
-            <p className="text-sm leading-relaxed text-cream/85">
-              There isn&apos;t enough evidence yet to confidently name a single
-              edge - your pillars are either closely balanced or broadly
-              strong right now.
-            </p>
-          )}
-        </div>
-
-        <p className="text-sm text-ink/50 leading-relaxed">
-          This is the raw picture from your assessment. The full Transformation
-          Map - what&apos;s changing, what&apos;s staying, what matters now -
-          is the next thing we build on top of this.
-        </p>
       </div>
     </main>
   );

@@ -1,8 +1,8 @@
 // Thrivar core model: Six Pillars, Current State, Current Edge.
 // This is intentionally rule-based and deterministic for v1 - no AI here.
 // Current Tension and Current Focus are NOT computed in this file; they
-// come from the AI narrative layer (next phase), which reads this output
-// but adds its own interpretation on top.
+// come from the AI narrative layer (generate-map route), which reads this
+// output but adds its own interpretation on top.
 
 export type PillarKey =
   | "identity"
@@ -16,7 +16,7 @@ export interface Pillar {
   key: PillarKey;
   label: string;
   question: string;
-  q: string[]; // two questions per pillar, answered 1-10
+  q: string[];
 }
 
 export const PILLARS: Pillar[] = [
@@ -76,12 +76,6 @@ export const PILLARS: Pillar[] = [
   },
 ];
 
-// Ten non-clinical states. Ordered low-to-high for score-banding purposes
-// only - in reality Grieving/Unraveling/Disconnected aren't strictly
-// "worse" than each other, they're qualitatively different. A numeric-only
-// v1 has to place them somewhere; once journal/reflection text feeds state
-// detection later, this banding should be revisited rather than treated as
-// the final word.
 export const STATES = [
   "Surviving",
   "Unraveling",
@@ -98,16 +92,9 @@ export type StateName = (typeof STATES)[number];
 
 export function scoreToState(score: number): StateName {
   const bands: [number, StateName][] = [
-    [10, "Surviving"],
-    [20, "Unraveling"],
-    [30, "Grieving"],
-    [40, "Disconnected"],
-    [50, "Stuck"],
-    [60, "Reorienting"],
-    [70, "Rebuilding"],
-    [80, "Integrating"],
-    [90, "Expanding"],
-    [100, "Thriving"],
+    [10, "Surviving"], [20, "Unraveling"], [30, "Grieving"], [40, "Disconnected"],
+    [50, "Stuck"], [60, "Reorienting"], [70, "Rebuilding"], [80, "Integrating"],
+    [90, "Expanding"], [100, "Thriving"],
   ];
   for (const [max, state] of bands) {
     if (score <= max) return state;
@@ -115,10 +102,6 @@ export function scoreToState(score: number): StateName {
   return "Thriving";
 }
 
-// One default edge per pillar for v1. This is a simplification - richer,
-// multi-edge nuance (e.g. Capacity strain sometimes being about Letting Go
-// rather than raw Capacity) is deferred to the AI narrative layer once
-// schema + logic are validated.
 const PILLAR_TO_EDGE: Record<PillarKey, string> = {
   identity: "Self-trust",
   belonging: "Boundaries",
@@ -138,27 +121,21 @@ export interface EdgeResult {
 }
 
 export function identifyEdge(scores: PillarScores): EdgeResult {
-  const entries = (Object.entries(scores) as [PillarKey, number][]).sort(
-    (a, b) => a[1] - b[1]
-  );
+  const entries = (Object.entries(scores) as [PillarKey, number][]).sort((a, b) => a[1] - b[1]);
   const [lowestPillar, lowestScore] = entries[0];
   const [secondPillar, secondScore] = entries[1];
   const highest = entries[entries.length - 1][1];
 
-  // Flat profile - no pillar stands out enough to name an edge honestly.
   if (highest - lowestScore < 8) {
     return { primaryEdge: null, secondaryTension: null, insufficientEvidence: true };
   }
-
-  // Broadly thriving - even the lowest pillar isn't really strained.
   if (lowestScore >= 75) {
     return { primaryEdge: null, secondaryTension: null, insufficientEvidence: true };
   }
 
   const primaryEdge = PILLAR_TO_EDGE[lowestPillar];
   const gap = secondScore - lowestScore;
-  const secondaryTension =
-    gap <= 8 && secondScore < 65 ? PILLAR_TO_EDGE[secondPillar] : null;
+  const secondaryTension = gap <= 8 && secondScore < 65 ? PILLAR_TO_EDGE[secondPillar] : null;
 
   return { primaryEdge, secondaryTension, insufficientEvidence: false };
 }
@@ -171,7 +148,6 @@ export interface ComputedProfile {
   insufficientEvidence: boolean;
 }
 
-// answers: keyed as `${pillarKey}_${questionIndex}`, values 1-10
 export function computeProfile(answers: Record<string, number>): ComputedProfile {
   const pillarScores = {} as PillarScores;
   const pillarStates = {} as PillarStates;
