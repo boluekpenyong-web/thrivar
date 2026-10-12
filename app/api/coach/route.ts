@@ -55,7 +55,7 @@ export async function POST(request: Request) {
   }
 
   // Same model as generate-map. Change this string to use a different model.
-  const MODEL = "meta-llama/llama-3.1-8b-instruct:free";
+  const MODEL = "meta-llama/llama-3.1-8b-instruct"
 
   const history = messages
     .slice(-12)
