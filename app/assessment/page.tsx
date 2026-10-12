@@ -94,7 +94,7 @@ export default function AssessmentPage() {
     }
     setGeneratingMap(false);
 
-    router.push("/dashboard");
+    router.push("/home");
     router.refresh();
   }
 
