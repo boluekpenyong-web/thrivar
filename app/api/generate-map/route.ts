@@ -60,7 +60,7 @@ export async function POST(request: Request) {
   // Free-tier model by default. Swap to a paid model any time by changing
   // this string once billing is set up on OpenRouter (e.g.
   // "anthropic/claude-3.5-sonnet" or "openai/gpt-4o-mini").
-  const MODEL = "meta-llama/llama-3.1-8b-instruct:free";
+  const MODEL = "meta-llama/llama-3.1-8b-instruct";
  
   let aiResponse: Response;
   try {
