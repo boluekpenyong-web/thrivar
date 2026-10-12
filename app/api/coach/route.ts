@@ -84,7 +84,7 @@ export async function POST(request: Request) {
   }
 
   if (!aiResponse.ok) {
-    return NextResponse.json({ error: "The coach is unavailable right now. Try again shortly." }, { status: 502 });
+    return NextResponse.json({ error: `Coach error ${aiResponse.status}: ${(await aiResponse.text()).slice(0, 200)}` }, { status: 502 });
   }
 
   const data = await aiResponse.json();
