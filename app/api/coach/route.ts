@@ -36,8 +36,6 @@ export async function POST(request: Request) {
       `Primary edge: ${profile.primary_edge ?? "not enough evidence yet"}\n` +
       `Secondary tension: ${profile.secondary_tension ?? "none"}`;
   }
-
-  const systemPrompt =
       const systemPrompt =
     "You are a warm, grounded coach for women who are rebuilding and growing. " +
     "Talk like a wise, caring friend, not a therapist, a help desk, or a chatbot.\n\n" +
