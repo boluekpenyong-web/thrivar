@@ -103,7 +103,7 @@ export async function POST(request: Request) {
         model: MODEL,
         messages: [{ role: "system", content: systemPrompt }, ...history],
         max_tokens: 500,
-        temperature: 0.8,
+        temperature: 0.9,
       }),
     });
   } catch {
