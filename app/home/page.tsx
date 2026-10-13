@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PILLARS } from "@/lib/thrivar/model";
+import GenerateMapButton from "@/components/GenerateMapButton";
 
 const ink = "#1f2933";
 const navy = "#2b3a67";
@@ -55,6 +56,7 @@ export default async function HomePage() {
         {profile ? (
           <>
             <Link href="/coach" style={button(true)}>Talk to your coach</Link>
+            <Link href="/journal" style={button(false)}>Journal</Link>
             <Link href="/dashboard" style={button(false)}>See your pillars</Link>
           </>
         ) : (
@@ -98,9 +100,7 @@ export default async function HomePage() {
       )}
 
       {profile && mapEntries.length === 0 && (
-        <p style={{ opacity: 0.75 }}>
-          Your map has not been generated yet. Finish the assessment to create it.
-        </p>
+        <GenerateMapButton profileId={profile.id} />
       )}
     </main>
   );
