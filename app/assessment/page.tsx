@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PILLARS, computeProfile } from "@/lib/thrivar/model";
@@ -78,10 +79,10 @@ export default function AssessmentPage() {
       return;
     }
 
-    // Generate the Transformation Map narrative before landing on the
-    // dashboard, so it's ready the first time they see it. If this fails
-    // for any reason, we still let them through - the dashboard falls
-    // back to the raw pillar view rather than blocking them here.
+    // Generate the Transformation Map narrative before landing on Home,
+    // so it's ready the first time they see it. If this fails for any
+    // reason, we still let them through - Home has a "Generate my map"
+    // button as a fallback.
     setGeneratingMap(true);
     try {
       await fetch("/api/generate-map", {
@@ -90,7 +91,7 @@ export default function AssessmentPage() {
         body: JSON.stringify({ profileId: inserted.id }),
       });
     } catch {
-      // Non-fatal - dashboard handles a missing map gracefully.
+      // Non-fatal.
     }
     setGeneratingMap(false);
 
@@ -119,6 +120,12 @@ export default function AssessmentPage() {
     <main className="min-h-screen flex flex-col bg-cream">
       <div className="h-1 bg-sandSoft">
         <div className="h-1 bg-electric transition-all duration-500" style={{ width: `${pct}%` }} />
+      </div>
+
+      <div className="px-7 pt-5">
+        <Link href="/home" className="text-sm text-ink/50">
+          ← Back to Home
+        </Link>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-7">

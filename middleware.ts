@@ -27,13 +27,20 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isProtectedRoute =
-    request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/assessment");
+  const path = request.nextUrl.pathname;
+
+  const isProtectedRoute = ["/dashboard", "/assessment", "/home", "/coach", "/journal"].some(
+    (p) => path.startsWith(p)
+  );
+  const isEntryRoute = path === "/" || path === "/login" || path === "/signup";
 
   if (isProtectedRoute && !user) {
-    const redirectUrl = new URL("/login", request.url);
-    return NextResponse.redirect(redirectUrl);
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // Signed-in people go straight to Home instead of the intro or login pages.
+  if (isEntryRoute && user) {
+    return NextResponse.redirect(new URL("/home", request.url));
   }
 
   return response;

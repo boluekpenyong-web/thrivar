@@ -21,6 +21,9 @@ export default async function HomePage() {
     .limit(1)
     .maybeSingle();
 
+  // New here? Start with the assessment.
+  if (!profile) redirect("/assessment");
+
   const scores = (profile?.pillar_scores ?? null) as Record<string, number> | null;
   const states = (profile?.pillar_states ?? null) as Record<string, string> | null;
   const map = (profile?.transformation_map ?? null) as Record<string, unknown> | null;
@@ -102,6 +105,11 @@ export default async function HomePage() {
       {profile && mapEntries.length === 0 && (
         <GenerateMapButton profileId={profile.id} />
       )}
+      <p style={{ marginTop: 40 }}>
+        <Link href="/assessment" style={{ color: ink, opacity: 0.7 }}>
+          Retake the assessment
+        </Link>
+      </p>
     </main>
   );
 }
