@@ -18,6 +18,7 @@ export default async function HomePage() {
     .from("profiles")
     .select("*")
     .eq("user_id", user.id)
+    .order("completed_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -47,12 +48,10 @@ export default async function HomePage() {
   return (
     <main style={{ maxWidth: 640, margin: "0 auto", padding: "48px 20px", color: ink }}>
       <h1 style={{ fontFamily: "Georgia, serif", fontSize: 36, margin: 0 }}>
-        Welcome back
+        Your landscape
       </h1>
-      <p style={{ marginTop: 8, opacity: 0.75 }}>
-        {profile
-          ? "Here is where you are and what to do next."
-          : "Take the assessment to see where you are."}
+      <p style={{ marginTop: 8, opacity: 0.75, lineHeight: 1.6 }}>
+        See where you are. Understand what&apos;s shaping you. Build where you&apos;re going.
       </p>
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", margin: "24px 0 40px" }}>

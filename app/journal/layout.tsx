@@ -4,7 +4,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Nav />
-      {children}
+      <div style={{ paddingBottom: 88 }}>{children}</div>
     </>
   );
 }

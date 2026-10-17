@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -55,12 +54,11 @@ export default function CoachPage() {
         color: ink,
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh",
+        minHeight: "calc(100vh - 160px)",
       }}
     >
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+      <header>
         <h1 style={{ fontFamily: "Georgia, serif", fontSize: 28, margin: 0 }}>Your coach</h1>
-        <Link href="/home" style={{ color: ink }}>Home</Link>
       </header>
 
       <div style={{ flex: 1, padding: "24px 0" }}>
@@ -92,7 +90,7 @@ export default function CoachPage() {
         <div ref={endRef} />
       </div>
 
-      <div style={{ display: "flex", gap: 8, position: "sticky", bottom: 0, paddingBottom: 12 }}>
+      <div style={{ display: "flex", gap: 8, position: "sticky", bottom: 84, paddingBottom: 12, background: "#faf6ef" }}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
