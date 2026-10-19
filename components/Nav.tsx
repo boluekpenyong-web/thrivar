@@ -2,91 +2,57 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
 
-const ink = "#1f2933";
-const accent = "#2b3a67";
-
-const icon = (d: ReactNode) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-    {d}
-  </svg>
-);
-
-const tabs = [
-  { href: "/home", label: "Home", icon: icon(<><path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" /></>) },
-  { href: "/journal", label: "Journal", icon: icon(<><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3V4z" /><path d="M9 9h6M9 13h6" /></>) },
-  { href: "/coach", label: "Coach", icon: icon(<path d="M4 5h16v11H9l-5 4V5z" />) },
-  { href: "/dashboard", label: "Pillars", icon: icon(<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" />) },
+const links = [
+  { href: "/home", label: "Home" },
+  { href: "/coach", label: "Coach" },
+  { href: "/journal", label: "Journal" },
+  { href: "/dashboard", label: "Pillars" },
 ];
+
+const focusRing =
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-plum";
 
 export default function Nav() {
   const pathname = usePathname();
   return (
-    <>
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          maxWidth: 640,
-          margin: "0 auto",
-          padding: "16px 20px 0",
-          color: ink,
-        }}
+    <nav
+      aria-label="Main"
+      className="mx-auto flex w-full max-w-[640px] flex-wrap items-center gap-x-5 gap-y-2 px-5 pt-4 text-ink"
+    >
+      <Link
+        href="/"
+        className={`mr-auto font-display text-xl tracking-[0.18em] text-aubergine ${focusRing}`}
       >
-        <span style={{ fontFamily: "Georgia, serif", fontSize: 22 }}>Thrivar</span>
-        <form action="/api/logout" method="post">
-          <button
-            type="submit"
-            style={{ background: "none", border: "none", color: ink, opacity: 0.6, cursor: "pointer", fontSize: 14 }}
-          >
-            Log out
-          </button>
-        </form>
-      </header>
+        THRIVAR
+      </Link>
 
-      <nav
-        aria-label="Main"
-        style={{
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 50,
-          background: "#faf6ef",
-          borderTop: `1px solid ${ink}1f`,
-          paddingBottom: "env(safe-area-inset-bottom)",
-        }}
-      >
-        <div style={{ display: "flex", maxWidth: 640, margin: "0 auto" }}>
-          {tabs.map((t) => {
-            const active = pathname.startsWith(t.href);
-            return (
-              <Link
-                key={t.href}
-                href={t.href}
-                aria-current={active ? "page" : undefined}
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 3,
-                  padding: "10px 0 12px",
-                  textDecoration: "none",
-                  fontSize: 12,
-                  color: active ? accent : `${ink}8c`,
-                  fontWeight: active ? 600 : 400,
-                }}
-              >
-                {t.icon}
-                {t.label}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-    </>
+      {links.map((l) => {
+        const active = pathname === l.href;
+        return (
+          <Link
+            key={l.href}
+            href={l.href}
+            aria-current={active ? "page" : undefined}
+            className={`border-b-2 pb-0.5 text-sm transition-colors ${focusRing} ${
+              active
+                ? "border-aubergine text-aubergine"
+                : "border-transparent text-ink/75 hover:text-aubergine"
+            }`}
+          >
+            {l.label}
+          </Link>
+        );
+      })}
+
+      <form action="/api/logout" method="post">
+        <button
+          type="submit"
+          className={`text-sm text-ink/70 transition-colors hover:text-aubergine ${focusRing}`}
+        >
+          Log out
+        </button>
+      </form>
+    </nav>
   );
 }

@@ -32,14 +32,17 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = ["/dashboard", "/assessment", "/home", "/coach", "/journal"].some(
     (p) => path.startsWith(p)
   );
-  const isEntryRoute = path === "/" || path === "/login" || path === "/signup";
+
+  // The landing page ("/") is now viewable by everyone, signed in or not.
+  // Only the login and signup pages are skipped by signed-in people.
+  const isAuthRoute = path === "/login" || path === "/signup";
 
   if (isProtectedRoute && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Signed-in people go straight to Home instead of the intro or login pages.
-  if (isEntryRoute && user) {
+  // Signed-in people go straight to Home instead of the login or signup pages.
+  if (isAuthRoute && user) {
     return NextResponse.redirect(new URL("/home", request.url));
   }
 

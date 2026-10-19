@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 
 type Msg = { role: "user" | "assistant"; content: string };
-
-const ink = "#1f2933";
-const navy = "#2b3a67";
 
 export default function CoachPage() {
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -15,7 +13,8 @@ export default function CoachPage() {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    endRef.current?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
   }, [messages, loading]);
 
   async function send() {
@@ -46,76 +45,65 @@ export default function CoachPage() {
   }
 
   return (
-    <main
-      style={{
-        maxWidth: 640,
-        margin: "0 auto",
-        padding: "24px 20px",
-        color: ink,
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "calc(100vh - 160px)",
-      }}
-    >
-      <header>
-        <h1 style={{ fontFamily: "Georgia, serif", fontSize: 28, margin: 0 }}>Your coach</h1>
+    <main className="mx-auto flex min-h-screen w-full max-w-[640px] flex-col px-5 pt-6 text-ink">
+      <header className="flex items-baseline justify-between border-b border-champagne/60 pb-4">
+        <h1 className="font-display text-3xl text-aubergine">Your coach</h1>
+        <Link
+          href="/home"
+          className="text-sm text-aubergine underline-offset-4 hover:underline"
+        >
+          Home
+        </Link>
       </header>
 
-      <div style={{ flex: 1, padding: "24px 0" }}>
+      <div className="flex-1 py-6" role="log" aria-live="polite">
         {messages.length === 0 && (
-          <p style={{ opacity: 0.75, lineHeight: 1.6 }}>
+          <p className="leading-relaxed text-ink/75">
             Ask about a pillar, a decision you are facing, or what to focus on this week.
           </p>
         )}
+
         {messages.map((m, i) => (
           <div
             key={i}
-            style={{
-              margin: "12px 0",
-              padding: "12px 16px",
-              borderRadius: 14,
-              lineHeight: 1.6,
-              whiteSpace: "pre-wrap",
-              maxWidth: "88%",
-              marginLeft: m.role === "user" ? "auto" : 0,
-              background: m.role === "user" ? navy : `${ink}0d`,
-              color: m.role === "user" ? "#fff" : ink,
-            }}
+            className={`my-3 flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
           >
-            {m.content}
+            <div
+              className={`max-w-[88%] whitespace-pre-wrap px-4 py-3 text-[15px] leading-relaxed rounded-xl ${
+                m.role === "user"
+                  ? "bg-aubergine text-cream rounded-br-sm"
+                  : "bg-greige text-ink rounded-bl-sm"
+              }`}
+            >
+              {m.content}
+            </div>
           </div>
         ))}
-        {loading && <p style={{ opacity: 0.6 }}>Thinking...</p>}
-        {error && <p style={{ color: "#b3261e" }}>{error}</p>}
+
+        {loading && <p className="my-3 text-sm text-plum">Thinking...</p>}
+        {error && (
+          <p role="alert" className="my-3 text-sm text-red-700">
+            {error}
+          </p>
+        )}
         <div ref={endRef} />
       </div>
 
-      <div style={{ display: "flex", gap: 8, position: "sticky", bottom: 84, paddingBottom: 12, background: "#faf6ef" }}>
+      <div className="sticky bottom-0 flex gap-2 border-t border-champagne/60 bg-cream py-3">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="Write to your coach"
-          style={{
-            flex: 1,
-            padding: "12px 16px",
-            borderRadius: 999,
-            border: `1px solid ${ink}55`,
-            fontSize: 16,
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.nativeEvent.isComposing) send();
           }}
+          aria-label="Message your coach"
+          placeholder="Write to your coach"
+          className="flex-1 rounded-lg border border-aubergine/25 bg-white px-4 py-3 text-base text-ink placeholder:text-ink/50 focus:outline-none focus:ring-2 focus:ring-aubergine/40"
         />
         <button
           onClick={send}
-          disabled={loading}
-          style={{
-            padding: "12px 20px",
-            borderRadius: 999,
-            border: "none",
-            background: navy,
-            color: "#fff",
-            fontSize: 16,
-            opacity: loading ? 0.6 : 1,
-          }}
+          disabled={loading || !input.trim()}
+          className="rounded-lg bg-aubergine px-6 py-3 text-base text-cream transition-colors hover:bg-plum disabled:opacity-50"
         >
           Send
         </button>
