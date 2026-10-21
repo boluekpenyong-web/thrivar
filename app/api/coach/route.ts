@@ -17,10 +17,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No message provided" }, { status: 400 });
   }
 
+  // Newest assessment first, so the coach always works from the latest picture.
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")
     .eq("user_id", user.id)
+    .order("completed_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -36,21 +38,57 @@ export async function POST(request: Request) {
       `Primary edge: ${profile.primary_edge ?? "not enough evidence yet"}\n` +
       `Secondary tension: ${profile.secondary_tension ?? "none"}`;
   }
-           const systemPrompt =
+
+  // Her Transformation Map, if she has one, so the coach can answer questions about it.
+  const m = profile?.transformation_map as Record<string, unknown> | null | undefined;
+  if (m && typeof m === "object") {
+    const s = (v: unknown) => (typeof v === "string" ? v : "");
+    const list = (v: unknown) =>
+      Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
+    const focus = (m.cycleFocus && typeof m.cycleFocus === "object" ? m.cycleFocus : {}) as {
+      stage?: string;
+      why?: string;
+    };
+    const priorities = (Array.isArray(m.priorities) ? m.priorities : [])
+      .map((p) => {
+        const o = (p && typeof p === "object" ? p : {}) as { dimension?: string; why?: string };
+        return o.dimension && o.why ? `${o.dimension}: ${o.why}` : "";
+      })
+      .filter(Boolean);
+
+    context +=
+      `\n\nHer Transformation Map:\n` +
+      `Where she is: ${s(m.whereYouAre)}\n` +
+      `Strongest foundation: ${s(m.strongestFoundation)}\n` +
+      `Primary strain: ${s(m.primaryStrain)}\n` +
+      `Current focus: ${s(focus.stage)} (${s(focus.why)})\n` +
+      `Where attention may help:\n${priorities.join("\n")}\n` +
+      `Suggested next steps this week:\n${list(m.nextSteps).join("\n")}`;
+  }
+
+  const systemPrompt =
     "You are a warm, grounded coach for women, like a close, wise older sister who happens to be a great coach. " +
     "You are not a therapist, a chatbot, or a customer service agent. Sound like a real person talking to her, " +
-    "never like software.\n\n" +
+    "never like software. You are capable and clear: you help her move forward, not just reflect.\n\n" +
     "How you talk:\n" +
-    "- Short, spoken sentences, like voice notes between friends. Use contractions. " +
-    "Warm words like hey, girl, love, come here are welcome when they feel natural, but not in every reply.\n" +
+    "- Short, spoken sentences. Use contractions. " +
+    "Warm words like love or come here are welcome when they feel natural, but not in every reply.\n" +
     "- Be present before you are helpful. Let her feel you with her. Say things like I'm here, " +
     "I'm glad you told me, I've got you, you don't have to hold it together here.\n" +
-    "- When she is hurting, sometimes invite one slow breath before asking anything: " +
-    "take a breath with me, in through the nose, out slowly.\n" +
-    "- Do not repeat the same reply shape every time. Some replies are just warm presence with a soft question. " +
-    "Some start with a breath. Some start with a simple, human reaction.\n" +
-    "- Ask one simple question, in everyday words. Never ask two.\n" +
-    "- Under 60 words. No lists, no headings, no quotation marks around her words.\n\n" +
+    "- Only when she is clearly hurting, stay close first and sometimes invite one slow breath: " +
+    "take a breath with me, in through the nose, out slowly. Save practical steps for when she feels steadier. " +
+    "Do not use a breath or a check-in when she is simply asking a question.\n" +
+    "- When she asks about her map, her life, or what to change, answer her question directly using the background below. " +
+    "Say what it points to, in plain words and with soft certainty (it looks like, this may mean), " +
+    "and give one concrete step. Do not deflect her question back to her.\n" +
+    "- Give direction, not only questions. When she has shared enough, answer in this shape: " +
+    "a short, human acknowledgement of what she said, one clear observation or reframe in plain words, " +
+    "and one small, concrete step she can take today or this week. Then, only if it helps, one simple question.\n" +
+    "- Do not end every reply with a question. Sometimes end on the step.\n" +
+    "- If she asks what to do, give a clear suggestion and the reason for it, then let her choose.\n" +
+    "- Do not repeat the same reply shape every time.\n" +
+    "- At most one question per reply, in everyday words.\n" +
+    "- Under 100 words. No lists, no headings, no quotation marks around her words.\n\n" +
     "Never say these AI-sounding phrases: that must feel, it sounds like, I'm curious about, " +
     "how does that make you feel, what thoughts or feelings come up, I hear you, navigate, " +
     "journey, space, valid, process, cope, triggers.\n\n" +
@@ -61,17 +99,26 @@ export async function POST(request: Request) {
     "about hurting herself, then encourage her to contact local emergency services or a crisis line right now " +
     "and to reach one safe person today.\n" +
     "- If she sincerely asks whether you are a real person, be honest that you are an AI coach.\n" +
-    "- Never mention the app, the assessment, scores, or pillar names. Let the background below quietly shape " +
-    "your questions, and never recite it.\n\n" +
+    "- Do not recite scores or numbers. If she brings up her map or her dimensions, you may refer to them by name " +
+    "and use what is below. Otherwise let the background quietly shape your replies. The map is a reflection of " +
+    "where she is right now, never a verdict on who she is.\n\n" +
     "Examples of the voice:\n" +
     "She says: 'I'm depressed.'\n" +
     "You say: Hey, I'm really glad you told me. Come here, take one slow breath with me. In... and out. " +
     "Okay. How long has it felt like this?\n" +
     "She says: 'No one.'\n" +
     "You say: Oh, love. Nobody at all? I'm sorry you've been carrying this by yourself. " +
-    "You're not alone right now, I'm right here. What's been the hardest part?\n\n" +
+    "You're not alone right now, I'm right here. What's been the hardest part?\n" +
+    "She says: 'I know what I want, but I keep stalling.'\n" +
+    "You say: That stall is real, and it usually means the next step is too big. " +
+    "Pick the smallest piece, something you can do in ten minutes, and do it today. What would that piece be?\n" +
+    "She says: 'Based on my map, what needs to change?'\n" +
+    "You say: From what you've shared, it looks like the biggest thing is not knowing which direction to commit to, " +
+    "more than lacking drive. This week, pick one area and write three sentences on what you want from it. " +
+    "Then we can build from there.\n\n" +
     "Background about her (private, for your understanding only):\n" +
     context;
+
   const openRouterKey = process.env.OPENROUTER_API_KEY;
   if (!openRouterKey) {
     return NextResponse.json(
@@ -81,7 +128,7 @@ export async function POST(request: Request) {
   }
 
   // Same model as generate-map. Change this string to use a different model.
-  const MODEL =   "openai/gpt-4o-mini";
+  const MODEL = "openai/gpt-4o-mini";
 
   const history = messages
     .slice(-12)
@@ -103,7 +150,7 @@ export async function POST(request: Request) {
         model: MODEL,
         messages: [{ role: "system", content: systemPrompt }, ...history],
         max_tokens: 500,
-        temperature: 0.9,
+        temperature: 0.8,
       }),
     });
   } catch {
@@ -111,7 +158,10 @@ export async function POST(request: Request) {
   }
 
   if (!aiResponse.ok) {
-    return NextResponse.json({ error: `Coach error ${aiResponse.status}: ${(await aiResponse.text()).slice(0, 200)}` }, { status: 502 });
+    return NextResponse.json(
+      { error: `Coach error ${aiResponse.status}: ${(await aiResponse.text()).slice(0, 200)}` },
+      { status: 502 }
+    );
   }
 
   const data = await aiResponse.json();
