@@ -2,6 +2,51 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { PILLARS, type PillarKey } from "@/lib/thrivar/model";
 
+// Loads the saved conversation so it is still there when she comes back.
+export async function GET() {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const { data, error } = await supabase
+    .from("coach_messages")
+    .select("role, content, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  // If the table is not there yet, the coach still works, it just starts empty.
+  if (error || !data) {
+    return NextResponse.json({ messages: [] });
+  }
+
+  const messages = [...data]
+    .reverse()
+    .map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: String(m.content) }));
+  return NextResponse.json({ messages });
+}
+
+// Lets her clear the conversation whenever she wants.
+export async function DELETE() {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const { error } = await supabase.from("coach_messages").delete().eq("user_id", user.id);
+  if (error) {
+    return NextResponse.json({ error: "Could not clear the conversation. Try again." }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true });
+}
+
 // Server-side only. OPENROUTER_API_KEY never reaches the browser.
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -16,6 +61,8 @@ export async function POST(request: Request) {
   if (!Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json({ error: "No message provided" }, { status: 400 });
   }
+
+  const askedAt = new Date().toISOString();
 
   // Newest assessment first, so the coach always works from the latest picture.
   const { data: profile } = await supabase
@@ -81,6 +128,11 @@ export async function POST(request: Request) {
     "- When she asks about her map, her life, or what to change, answer her question directly using the background below. " +
     "Say what it points to, in plain words and with soft certainty (it looks like, this may mean), " +
     "and give one concrete step. Do not deflect her question back to her.\n" +
+    "- Guide her yourself. Do not send her elsewhere as your default answer to feeling stuck. " +
+    "Do not suggest talking to a friend, a therapist, or someone she trusts unless she is in real distress, " +
+    "mentions her safety, or it is clear she needs support beyond coaching. Instead give her the next piece of work: " +
+    "a short reflection to write, a small experiment, or a decision to make, and stay with her on it. " +
+    "If the map's suggested steps include reaching out to someone, do not repeat that; offer a step you can guide her through here.\n" +
     "- Give direction, not only questions. When she has shared enough, answer in this shape: " +
     "a short, human acknowledgement of what she said, one clear observation or reframe in plain words, " +
     "and one small, concrete step she can take today or this week. Then, only if it helps, one simple question.\n" +
@@ -90,7 +142,7 @@ export async function POST(request: Request) {
     "- At most one question per reply, in everyday words.\n" +
     "- Under 100 words. No lists, no headings, no quotation marks around her words.\n\n" +
     "Never say these AI-sounding phrases: that must feel, it sounds like, I'm curious about, " +
-    "how does that make you feel, what thoughts or feelings come up, I hear you, navigate, " +
+    "how does that make you feel, how does that sound, what thoughts or feelings come up, I hear you, navigate, " +
     "journey, space, valid, process, cope, triggers.\n\n" +
     "Safety, always:\n" +
     "- If she says she is depressed, hopeless, or alone, slow down and stay close. Make her feel she is not alone " +
@@ -168,6 +220,17 @@ export async function POST(request: Request) {
   const reply: string = data?.choices?.[0]?.message?.content ?? "";
   if (!reply) {
     return NextResponse.json({ error: "The coach returned an empty reply. Try again." }, { status: 502 });
+  }
+
+  // Save this exchange so the conversation is still there next time. Never blocks the reply.
+  const lastUser = [...messages].reverse().find((m: { role: string }) => m && m.role === "user") as
+    | { content?: unknown }
+    | undefined;
+  if (lastUser && typeof lastUser.content === "string") {
+    await supabase.from("coach_messages").insert([
+      { user_id: user.id, role: "user", content: lastUser.content.slice(0, 2000), created_at: askedAt },
+      { user_id: user.id, role: "assistant", content: reply, created_at: new Date().toISOString() },
+    ]);
   }
 
   return NextResponse.json({ reply });

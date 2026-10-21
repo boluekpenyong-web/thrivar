@@ -9,17 +9,39 @@ export default function CoachPage() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(true);
   const [error, setError] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
+
+  // Bring back the saved conversation when she opens the coach.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/coach");
+        if (res.ok) {
+          const data = await res.json();
+          if (!cancelled && Array.isArray(data.messages)) setMessages(data.messages);
+        }
+      } catch {
+        // If it cannot load, she can still start a new conversation.
+      } finally {
+        if (!cancelled) setLoadingHistory(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     endRef.current?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
-  }, [messages, loading]);
+  }, [messages, loading, loadingHistory]);
 
   async function send() {
     const text = input.trim();
-    if (!text || loading) return;
+    if (!text || loading || loadingHistory) return;
     const next: Msg[] = [...messages, { role: "user", content: text }];
     setMessages(next);
     setInput("");
@@ -44,30 +66,53 @@ export default function CoachPage() {
     }
   }
 
+  async function clearConversation() {
+    if (!window.confirm("Clear this conversation? It will be deleted from your account.")) return;
+    setError("");
+    try {
+      const res = await fetch("/api/coach", { method: "DELETE" });
+      if (res.ok) {
+        setMessages([]);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Could not clear the conversation. Try again.");
+      }
+    } catch {
+      setError("Could not reach the server. Check your connection and try again.");
+    }
+  }
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[640px] flex-col px-5 pt-6 text-ink">
       <header className="flex items-baseline justify-between border-b border-champagne/60 pb-4">
         <h1 className="font-display text-3xl text-aubergine">Your coach</h1>
-        <Link
-          href="/home"
-          className="text-sm text-aubergine underline-offset-4 hover:underline"
-        >
-          Home
-        </Link>
+        <div className="flex items-baseline gap-4">
+          {messages.length > 0 && (
+            <button
+              type="button"
+              onClick={clearConversation}
+              className="text-sm text-ink/70 underline-offset-4 hover:text-aubergine hover:underline"
+            >
+              Clear conversation
+            </button>
+          )}
+          <Link href="/home" className="text-sm text-aubergine underline-offset-4 hover:underline">
+            Home
+          </Link>
+        </div>
       </header>
 
       <div className="flex-1 py-6" role="log" aria-live="polite">
-        {messages.length === 0 && (
+        {loadingHistory && <p className="text-sm text-plum">Loading your conversation...</p>}
+
+        {!loadingHistory && messages.length === 0 && (
           <p className="leading-relaxed text-ink/75">
             Ask about a pillar, a decision you are facing, or what to focus on this week.
           </p>
         )}
 
         {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`my-3 flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-          >
+          <div key={i} className={`my-3 flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
               className={`max-w-[88%] whitespace-pre-wrap px-4 py-3 text-[15px] leading-relaxed rounded-xl ${
                 m.role === "user"
@@ -102,7 +147,7 @@ export default function CoachPage() {
         />
         <button
           onClick={send}
-          disabled={loading || !input.trim()}
+          disabled={loading || loadingHistory || !input.trim()}
           className="rounded-lg bg-aubergine px-6 py-3 text-base text-cream transition-colors hover:bg-plum disabled:opacity-50"
         >
           Send

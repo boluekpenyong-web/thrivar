@@ -94,13 +94,16 @@ export async function POST(request: Request) {
     "need to recognize or understand; Reorienting fits reorient; Rebuilding fits plan; Integrating or Expanding fit " +
     "practise or review). " +
     "Only include a secondary tension if the pattern of scores genuinely supports it; otherwise use null. " +
+    "Next steps must be things she can do herself this week, such as a short piece of writing, a small experiment, " +
+    "or one decision, tied to her priorities. Never make a next step 'talk to someone you trust', 'reach out to a friend', " +
+    "or 'see a therapist'. Do not hand the work to someone else. " +
     "Respond with ONLY valid JSON, no markdown and no commentary, in exactly this shape: " +
     '{"whereYouAre": string (2-3 sentences), "strongestFoundation": string (1-2 sentences), ' +
     '"primaryStrain": string (1-2 sentences), "secondaryTension": string or null, ' +
     '"cycleFocus": {"stage": one of recognize|understand|reorient|plan|practise|review, "why": string (1-2 sentences)}, ' +
     '"strengths": [2 to 3 short strings], ' +
     '"priorities": [{"dimension": one of identity|belonging|purpose|capacity|direction|agency, "why": string}] (2 to 3 items), ' +
-    '"nextSteps": [2 to 3 short, concrete, achievable actions for the next 7 days]}';
+    '"nextSteps": [2 to 3 short, concrete, achievable actions for the next 7 days that she can do herself]}';
 
   const userPrompt =
     `Six dimension data:\n${pillarSummary}\n\n` +
