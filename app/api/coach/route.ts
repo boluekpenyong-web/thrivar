@@ -2,36 +2,46 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { PILLARS, type PillarKey } from "@/lib/thrivar/model";
 
-// Loads the saved conversation so it is still there when she comes back.
-export async function GET() {
+// GET /api/coach            -> her list of conversations, newest first
+// GET /api/coach?id=<uuid>  -> the messages in one conversation
+export async function GET(request: Request) {
   const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const id = new URL(request.url).searchParams.get("id");
+
+  if (id) {
+    const { data, error } = await supabase
+      .from("coach_messages")
+      .select("role, content, created_at")
+      .eq("user_id", user.id)
+      .eq("conversation_id", id)
+      .order("created_at", { ascending: true })
+      .limit(200);
+    if (error || !data) return NextResponse.json({ messages: [] });
+    return NextResponse.json({
+      messages: data.map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: String(m.content) })),
+    });
   }
 
   const { data, error } = await supabase
-    .from("coach_messages")
-    .select("role, content, created_at")
+    .from("coach_conversations")
+    .select("id, title, updated_at")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
+    .order("updated_at", { ascending: false })
     .limit(50);
-
-  // If the table is not there yet, the coach still works, it just starts empty.
-  if (error || !data) {
-    return NextResponse.json({ messages: [] });
-  }
-
-  const messages = [...data]
-    .reverse()
-    .map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: String(m.content) }));
-  return NextResponse.json({ messages });
+  // If the table is not there yet, the coach still works, it just shows no history.
+  if (error || !data) return NextResponse.json({ conversations: [] });
+  return NextResponse.json({ conversations: data });
 }
 
-// Lets her clear the conversation whenever she wants.
-export async function DELETE() {
+// DELETE /api/coach?id=<uuid> removes one conversation and its messages.
+export async function DELETE(request: Request) {
   const supabase = createClient();
   const {
     data: { user },
@@ -39,10 +49,15 @@ export async function DELETE() {
   if (!user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
-
-  const { error } = await supabase.from("coach_messages").delete().eq("user_id", user.id);
+  const id = new URL(request.url).searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "Missing conversation" }, { status: 400 });
+  }
+  // Messages are removed first, so this works even if the cascade is not set up.
+  await supabase.from("coach_messages").delete().eq("user_id", user.id).eq("conversation_id", id);
+  const { error } = await supabase.from("coach_conversations").delete().eq("user_id", user.id).eq("id", id);
   if (error) {
-    return NextResponse.json({ error: "Could not clear the conversation. Try again." }, { status: 500 });
+    return NextResponse.json({ error: "Could not delete the conversation. Try again." }, { status: 500 });
   }
   return NextResponse.json({ ok: true });
 }
@@ -57,7 +72,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const { messages } = await request.json();
+  const { messages, conversationId } = await request.json();
   if (!Array.isArray(messages) || messages.length === 0) {
     return NextResponse.json({ error: "No message provided" }, { status: 400 });
   }
@@ -239,16 +254,44 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "The coach returned an empty reply. Try again." }, { status: 502 });
   }
 
-  // Save this exchange so the conversation is still there next time. Never blocks the reply.
+  // Save this exchange. Never blocks the reply: if saving fails she still gets her answer.
+  let activeId: string | null = null;
+  let title: string | null = null;
   const lastUser = [...messages].reverse().find((m: { role: string }) => m && m.role === "user") as
     | { content?: unknown }
     | undefined;
   if (lastUser && typeof lastUser.content === "string") {
+    if (typeof conversationId === "string" && conversationId) {
+      const { data: own } = await supabase
+        .from("coach_conversations")
+        .select("id")
+        .eq("id", conversationId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (own?.id) activeId = own.id as string;
+    }
+    if (!activeId) {
+      const first = lastUser.content.replace(/\s+/g, " ").trim();
+      title = first.length > 60 ? first.slice(0, 57).trimEnd() + "..." : first || "New conversation";
+      const { data: created } = await supabase
+        .from("coach_conversations")
+        .insert({ user_id: user.id, title })
+        .select("id")
+        .maybeSingle();
+      activeId = (created?.id as string | undefined) ?? null;
+    }
     await supabase.from("coach_messages").insert([
-      { user_id: user.id, role: "user", content: lastUser.content.slice(0, 2000), created_at: askedAt },
-      { user_id: user.id, role: "assistant", content: reply, created_at: new Date().toISOString() },
+      { user_id: user.id, conversation_id: activeId, role: "user", content: lastUser.content.slice(0, 2000), created_at: askedAt },
+      { user_id: user.id, conversation_id: activeId, role: "assistant", content: reply, created_at: new Date().toISOString() },
     ]);
+    if (activeId) {
+      await supabase
+        .from("coach_conversations")
+        .update({ updated_at: new Date().toISOString() })
+        .eq("id", activeId)
+        .eq("user_id", user.id);
+    }
   }
 
-  return NextResponse.json({ reply });
+  return NextResponse.json({ reply, conversationId: activeId, title });
 }
