@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 
 type Entry = { id: string; body: string; created_at: string };
 
-const ink = "#1f2933";
-const navy = "#2b3a67";
-
 export default function JournalPage() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [text, setText] = useState("");
@@ -49,55 +46,54 @@ export default function JournalPage() {
   }
 
   return (
-    <main style={{ maxWidth: 640, margin: "0 auto", padding: "32px 20px", color: ink }}>
-      <h1 style={{ fontFamily: "Georgia, serif", fontSize: 32, margin: 0 }}>Journal</h1>
-      <p style={{ opacity: 0.75 }}>Write what is on your mind. Only you can see this.</p>
+    <main className="mx-auto max-w-[640px] px-5 pb-20 pt-10 text-midnight sm:pt-14">
+      <h1 className="font-display text-3xl text-midnight sm:text-4xl">Journal</h1>
+      <p className="mt-3 leading-relaxed text-midnight/80">
+        Write what is on your mind. Only you can see this.
+      </p>
 
+      <label htmlFor="entry" className="sr-only">
+        New journal entry
+      </label>
       <textarea
+        id="entry"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        rows={5}
+        rows={6}
         placeholder="What happened today, and what did you notice?"
-        style={{
-          width: "100%",
-          padding: 14,
-          borderRadius: 14,
-          border: `1px solid ${ink}55`,
-          fontSize: 16,
-          lineHeight: 1.6,
-          boxSizing: "border-box",
-          fontFamily: "inherit",
-        }}
+        className="mt-6 w-full rounded-md border border-midnight/20 bg-white px-4 py-3 text-base leading-relaxed text-midnight placeholder:text-mineral-deep focus:border-midnight focus:outline-none focus:ring-1 focus:ring-midnight"
       />
       <button
+        type="button"
         onClick={save}
-        disabled={saving}
-        style={{
-          marginTop: 10,
-          padding: "12px 22px",
-          borderRadius: 999,
-          border: "none",
-          background: navy,
-          color: "#fff",
-          fontSize: 16,
-          opacity: saving ? 0.6 : 1,
-        }}
+        disabled={saving || !text.trim()}
+        className="mt-3 rounded-md bg-midnight px-6 py-2.5 text-sm text-ivory transition-colors hover:bg-plum focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-midnight disabled:opacity-50"
       >
         {saving ? "Saving..." : "Save entry"}
       </button>
-      {error && <p style={{ color: "#b3261e" }}>{error}</p>}
+      {error && (
+        <p role="alert" className="mt-3 text-sm text-red-700">
+          {error}
+        </p>
+      )}
 
-      <section style={{ marginTop: 32 }}>
-        {loading && <p style={{ opacity: 0.6 }}>Loading your entries...</p>}
+      <section className="mt-12" aria-label="Your entries">
+        {loading && <p className="text-sm text-mineral-deep">Loading your entries...</p>}
         {!loading && entries.length === 0 && !error && (
-          <p style={{ opacity: 0.75 }}>No entries yet. Your first one will appear here.</p>
+          <p className="text-sm text-mineral-deep">No entries yet. Your first one will appear here.</p>
         )}
         {entries.map((e) => (
-          <article key={e.id} style={{ padding: "16px 0", borderTop: `1px solid ${ink}22` }}>
-            <div style={{ fontSize: 14, opacity: 0.6 }}>
-              {new Date(e.created_at).toLocaleString()}
-            </div>
-            <p style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, margin: "6px 0 0" }}>{e.body}</p>
+          <article key={e.id} className="border-t border-midnight/15 py-5">
+            <p className="text-xs uppercase tracking-[0.14em] text-mineral-deep">
+              {new Date(e.created_at).toLocaleString("en-GB", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+            <p className="mt-2 whitespace-pre-wrap leading-relaxed text-midnight/90">{e.body}</p>
           </article>
         ))}
       </section>

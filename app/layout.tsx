@@ -16,9 +16,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "THRIVAR | The operating system for thriving",
-  description:
-    "THRIVAR is a personal transformation system that brings your inner world, direction, decisions, and growth into one place.",
+  title: "THRIVAR | The intelligence behind your becoming",
+  description: "Your life is connected. Your growth should be, too.",
 };
 
 export default function RootLayout({

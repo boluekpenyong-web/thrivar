@@ -17,7 +17,8 @@ const focusRing =
 export default function Nav() {
   const pathname = usePathname();
   // Home is the wider, two-column page; every other page keeps the narrow reading width.
-  const width = pathname === "/home" ? "max-w-[1040px]" : "max-w-[640px]";
+  const onHome = pathname === "/home";
+  const width = onHome ? "max-w-[1040px]" : "max-w-[640px]";
   return (
     <nav
       aria-label="Main"
@@ -27,7 +28,8 @@ export default function Nav() {
         THRIVAR
       </Link>
 
-      {links.map((l) => {
+      {/* On Home the four entry points sit lower on the page, so the top bar stays quiet. */}
+      {!onHome && links.map((l) => {
         const active = pathname === l.href;
         return (
           <Link

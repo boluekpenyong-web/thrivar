@@ -110,7 +110,7 @@ export default function AssessmentPage() {
       <main className="min-h-screen flex items-center justify-center bg-cream px-6 text-center">
         <div>
           <p className="font-display text-2xl text-cobalt mb-2">Reading your landscape...</p>
-          <p className="text-sm text-ink/50">This takes a few seconds.</p>
+          <p className="text-sm text-mineral-deep">This takes a few seconds.</p>
         </div>
       </main>
     );
@@ -123,7 +123,7 @@ export default function AssessmentPage() {
       </div>
 
       <div className="px-7 pt-5">
-        <Link href="/home" className="text-sm text-ink/50">
+        <Link href="/home" className="text-sm text-mineral-deep">
           ← Back to Home
         </Link>
       </div>
@@ -131,13 +131,13 @@ export default function AssessmentPage() {
       <div className="flex-1 flex flex-col items-center justify-center px-7">
         <div className="max-w-lg w-full">
           <p className="text-sm mb-1 text-cobalt">{current.pillarLabel}</p>
-          <p className="text-sm mb-9 text-ink/45">
+          <p className="text-sm mb-9 text-mineral-deep">
             Question {qIndex + 1} of {allQuestions.length}
           </p>
 
           <h2 className="font-display text-3xl mb-12 leading-snug text-ink">{current.text}</h2>
 
-          <div className="mb-3 flex justify-between text-sm text-ink/45">
+          <div className="mb-3 flex justify-between text-sm text-mineral-deep">
             <span>Not true</span>
             <span>Very true</span>
           </div>
@@ -153,13 +153,13 @@ export default function AssessmentPage() {
           {error && <p className="text-sm text-red-600 mt-4">{error}</p>}
 
           <div className="flex justify-between items-center mt-10">
-            <button onClick={handleBack} disabled={qIndex === 0 || saving} className="text-sm text-ink/40 disabled:opacity-0">
+            <button onClick={handleBack} disabled={qIndex === 0 || saving} className="text-sm text-mineral-deep disabled:opacity-0">
               Back
             </button>
             <button
               onClick={handleContinue}
               disabled={saving}
-              className="px-7 py-3 rounded-full bg-cobalt text-cream text-sm disabled:opacity-60"
+              className="px-7 py-3 rounded-md bg-midnight text-cream text-sm disabled:opacity-60"
             >
               {saving ? "Saving..." : qIndex + 1 === allQuestions.length ? "See my results" : "Continue"}
             </button>
