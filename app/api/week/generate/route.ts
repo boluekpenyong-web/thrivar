@@ -100,9 +100,11 @@ export async function POST(request: Request) {
     const a = (rev?.answers ?? {}) as Record<string, unknown>;
     lastWeekText =
       `Last week's assignments:\n${lines}\n` +
-      `What she said was difficult: ${str(a.difficult) || "not shared"}\n` +
-      `What she avoided or struggled to follow through on: ${str(a.avoided) || "not shared"}\n` +
-      `What she wants to carry forward: ${str(a.carryForward) || "not shared"}`;
+      `What she said was difficult: ${str(a.struggled) || str(a.difficult) || "not shared"}\n` +
+      `What remains unresolved or she avoided: ${str(a.unresolved) || str(a.avoided) || "not shared"}\n` +
+      `What she chose to focus on and commit to next: ${
+        [str(a.action), str(a.commitment)].filter(Boolean).join(" / ") || str(a.carryForward) || "not shared"
+      }`;
   }
 
   const count = unfinished >= 2 ? 2 : 3;

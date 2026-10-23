@@ -5,26 +5,25 @@ import { usePathname } from "next/navigation";
 
 const links = [
   { href: "/home", label: "Home" },
-  { href: "/week", label: "This week" },
+  { href: "/week", label: "Weekly Assessment" },
   { href: "/coach", label: "Coach" },
   { href: "/journal", label: "Journal" },
   { href: "/dashboard", label: "Pillars" },
 ];
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-plum";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-midnight";
 
 export default function Nav() {
   const pathname = usePathname();
+  // Home is the wider, two-column page; every other page keeps the narrow reading width.
+  const width = pathname === "/home" ? "max-w-[1040px]" : "max-w-[640px]";
   return (
     <nav
       aria-label="Main"
-      className="mx-auto flex w-full max-w-[640px] flex-wrap items-center gap-x-5 gap-y-2 px-5 pt-4 text-ink"
+      className={`mx-auto flex w-full ${width} flex-wrap items-center gap-x-5 gap-y-2 px-5 pt-5 text-midnight`}
     >
-      <Link
-        href="/"
-        className={`mr-auto font-display text-xl tracking-[0.18em] text-aubergine ${focusRing}`}
-      >
+      <Link href="/" className={`mr-auto font-display text-xl tracking-[0.18em] text-midnight ${focusRing}`}>
         THRIVAR
       </Link>
 
@@ -36,9 +35,7 @@ export default function Nav() {
             href={l.href}
             aria-current={active ? "page" : undefined}
             className={`border-b-2 pb-0.5 text-sm transition-colors ${focusRing} ${
-              active
-                ? "border-aubergine text-aubergine"
-                : "border-transparent text-ink/75 hover:text-aubergine"
+              active ? "border-midnight text-midnight" : "border-transparent text-mineral-deep hover:text-midnight"
             }`}
           >
             {l.label}
@@ -49,7 +46,7 @@ export default function Nav() {
       <form action="/api/logout" method="post">
         <button
           type="submit"
-          className={`text-sm text-ink/70 transition-colors hover:text-aubergine ${focusRing}`}
+          className={`text-sm text-mineral-deep transition-colors hover:text-midnight ${focusRing}`}
         >
           Log out
         </button>

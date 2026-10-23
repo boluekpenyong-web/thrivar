@@ -1,9 +1,10 @@
 import type { Config } from "tailwindcss";
 
-// THRIVAR brand system.
-// The existing token names (cobalt, electric, sand, sandSoft, cream, ink) are kept
-// and re-pointed at the new palette, so every page and component that already uses
-// them is rebranded without being edited. The new names are the ones to use going forward.
+// THRIVAR brand system (Product Interface Redesign brief).
+// Midnight Ink #202039, Warm Ivory #F6F2EA, Muted Champagne #C5B38B, Mineral Slate #777F91.
+// Older token names (aubergine, plum, cream, greige, mauve, cobalt, electric, sand, sandSoft)
+// are kept and re-pointed at the new palette, so pages not touched in this update
+// (Journal, Pillars, Assessment, Coach) pick up the new colours without being edited.
 const config: Config = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -13,20 +14,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // New brand names
-        aubergine: "#302B4A", // primary buttons, navigation, key elements
-        plum: "#514565", // secondary elements, subtle emphasis
-        cream: "#F7F1E8", // main background
-        greige: "#E8E4DE", // coach bubbles, secondary surfaces
-        champagne: "#D8C5A7", // icons, fine details (never text on cream)
-        mauve: "#B7A6BC", // occasional supporting accent (never text on cream)
-        ink: "#26213A", // body text, aubergine-tinted
+        // Brand names, use these going forward
+        midnight: "#202039", // authority: key text, selected states, primary buttons
+        ivory: "#F6F2EA", // page background and the Intelligence card
+        champagne: "#C5B38B", // fine details only, never body text
+        mineral: { DEFAULT: "#777F91", deep: "#565D70" }, // DEFAULT for lines and large text; deep for small secondary text (readable on ivory)
+        tonal: "#ECE7DC", // quiet tonal surface for panels on ivory
 
-        // Legacy names, now mapped to the new palette
-        cobalt: "#302B4A",
-        electric: "#514565",
-        sand: "#D8C5A7",
-        sandSoft: "#E8E4DE",
+        // Older names, now mapped to the new palette
+        aubergine: "#202039",
+        plum: "#3A3A5C", // hover state of midnight
+        cream: "#F6F2EA",
+        greige: "#ECE7DC",
+        mauve: "#777F91",
+        ink: "#202039",
+        cobalt: "#202039",
+        electric: "#3A3A5C",
+        sand: "#C5B38B",
+        sandSoft: "#ECE7DC",
       },
       fontFamily: {
         display: ["var(--font-playfair)", "Georgia", "serif"],

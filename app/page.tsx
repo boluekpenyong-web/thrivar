@@ -1,22 +1,19 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import IntelligenceCard from "@/components/IntelligenceCard";
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-plum";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-midnight";
 
-const pillars = [
+const primary = `inline-block rounded-md bg-midnight px-8 py-3.5 text-center text-sm text-ivory transition-colors hover:bg-plum ${focusRing}`;
+const secondary = `inline-block rounded-md border border-midnight/30 px-8 py-3.5 text-center text-sm text-midnight transition-colors hover:bg-tonal ${focusRing}`;
+
+const sections = [
   { title: "6 Dimensions", body: "One honest picture of your life." },
-  {
-    title: "Your Path",
-    body: "A transformation journey built around what you need next.",
-  },
-  {
-    title: "THRIVAR Intelligence",
-    body: "An intelligence that knows your journey, connects the dots, and evolves with you.",
-  },
+  { title: "Your Path", body: "A transformation journey built around what you need next." },
 ];
 
-export default async function Home() {
+export default async function Landing() {
   const supabase = createClient();
   const {
     data: { user },
@@ -24,57 +21,36 @@ export default async function Home() {
   const signedIn = !!user;
 
   return (
-    <main className="min-h-screen flex flex-col bg-cream">
-      <header className="flex items-center justify-between px-6 py-5 sm:px-10">
-        <span className="font-display text-xl tracking-[0.18em] text-aubergine">
-          THRIVAR
-        </span>
+    <main className="flex min-h-screen flex-col bg-ivory">
+      <header className="mx-auto flex w-full max-w-[1040px] items-center justify-between px-6 py-5 sm:px-10">
+        <span className="font-display text-xl tracking-[0.18em] text-midnight">THRIVAR</span>
         <Link
           href={signedIn ? "/home" : "/login"}
-          className={`text-sm text-aubergine underline-offset-4 hover:underline ${focusRing}`}
+          className={`text-sm text-midnight underline-offset-4 hover:underline ${focusRing}`}
         >
           {signedIn ? "Open THRIVAR" : "Sign in"}
         </Link>
       </header>
 
-      <section className="flex-1 flex flex-col items-center justify-center px-6 py-16 sm:py-24 text-center">
-        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.15] text-aubergine max-w-3xl mb-8">
-          THE OPERATING SYSTEM FOR THRIVING.
+      <section className="flex flex-1 flex-col items-center justify-center px-6 py-20 text-center sm:py-28">
+        <h1 className="max-w-2xl font-display text-4xl leading-[1.15] text-midnight sm:text-5xl">
+          The intelligence behind your becoming.
         </h1>
-
-        <div className="w-12 h-px bg-champagne mb-8" aria-hidden="true" />
-
-        <p className="max-w-md text-base leading-relaxed text-ink/80 mb-8">
-          THRIVAR is a personal transformation system that brings your inner
-          world, direction, decisions, and growth into one place.
+        <p className="mt-6 max-w-md text-lg leading-relaxed text-mineral-deep">
+          Your life is connected. Your growth should be, too.
         </p>
 
-        <div className="text-base leading-relaxed text-ink/80 mb-10 space-y-1">
-          <p>See where you are.</p>
-          <p>Understand what&apos;s shaping you.</p>
-          <p>Build where you&apos;re going.</p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-none sm:w-auto">
+        <div className="mt-10 flex w-full max-w-xs flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row">
           {signedIn ? (
-            <Link
-              href="/home"
-              className={`px-8 py-3.5 rounded-lg bg-aubergine text-cream text-sm text-center hover:bg-plum transition-colors ${focusRing}`}
-            >
+            <Link href="/home" className={primary}>
               Continue to your home
             </Link>
           ) : (
             <>
-              <Link
-                href="/signup"
-                className={`px-8 py-3.5 rounded-lg bg-aubergine text-cream text-sm text-center hover:bg-plum transition-colors ${focusRing}`}
-              >
+              <Link href="/signup" className={primary}>
                 Create your account
               </Link>
-              <Link
-                href="/login"
-                className={`px-8 py-3.5 rounded-lg border border-aubergine/30 text-aubergine text-sm text-center hover:bg-greige transition-colors ${focusRing}`}
-              >
+              <Link href="/login" className={secondary}>
                 Sign in
               </Link>
             </>
@@ -82,18 +58,17 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="px-8 py-16 bg-aubergine">
-        <div className="max-w-md mx-auto divide-y divide-champagne/30">
-          {pillars.map((item) => (
-            <div key={item.title} className="py-6 text-center">
-              <h2 className="font-display text-xl text-cream mb-2">
-                {item.title}
-              </h2>
-              <p className="text-sm leading-relaxed text-cream/80">
-                {item.body}
-              </p>
-            </div>
-          ))}
+      <section className="bg-midnight px-6 py-16 sm:px-10 sm:py-20">
+        <div className="mx-auto grid max-w-[1040px] items-center gap-12 lg:grid-cols-[1fr_1.25fr] lg:gap-16">
+          <div className="space-y-8">
+            {sections.map((s) => (
+              <div key={s.title} className="border-t border-champagne/40 pt-6">
+                <h2 className="font-display text-xl text-ivory">{s.title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-ivory/75">{s.body}</p>
+              </div>
+            ))}
+          </div>
+          <IntelligenceCard />
         </div>
       </section>
     </main>

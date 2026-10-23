@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Fonts (Playfair Display and Inter) are now loaded in app/layout.tsx via next/font.
-   The old Google Fonts @import for Fraunces has been removed. */
+/* Fonts (Playfair Display and Inter) are loaded in app/layout.tsx via next/font. */
 
 body {
-  background-color: #F7F1E8; /* Warm Cream */
-  color: #26213A; /* Ink, aubergine-tinted */
+  background-color: #F6F2EA; /* Warm Ivory */
+  color: #202039; /* Midnight Ink */
+  -webkit-font-smoothing: antialiased;
 }

@@ -19,12 +19,11 @@ type Props = {
 };
 
 // Brand colours (kept as hex so the SVG never depends on Tailwind purging).
-const AUBERGINE = "#302B4A";
-const PLUM = "#514565";
-const CHAMPAGNE = "#D8C5A7";
-const MAUVE = "#B7A6BC";
-const CREAM = "#F7F1E8";
-const INK = "#26213A";
+const AUBERGINE = "#202039"; // Midnight Ink
+const PLUM = "#777F91"; // Mineral Slate, used for the earlier outline
+const CHAMPAGNE = "#C5B38B"; // Muted Champagne
+const CREAM = "#F6F2EA"; // Warm Ivory
+const INK = "#202039";
 
 const CX = 220;
 const CY = 180;
@@ -104,7 +103,7 @@ export default function TransformationVisual({ dimensions, priorities = [], prev
         )}
 
         {/* now */}
-        <polygon points={polygon(nowRatios)} fill={AUBERGINE} fillOpacity={0.14} stroke={AUBERGINE} strokeWidth={2} strokeLinejoin="round" />
+        <polygon points={polygon(nowRatios)} fill={AUBERGINE} fillOpacity={0.1} stroke={AUBERGINE} strokeWidth={2} strokeLinejoin="round" />
 
         {/* points */}
         {dimensions.map((d, i) => {
@@ -147,7 +146,7 @@ export default function TransformationVisual({ dimensions, priorities = [], prev
         })}
       </svg>
 
-      <p className="mt-1 text-center text-xs text-ink/70">
+      <p className="mt-1 text-center text-xs text-mineral-deep">
         <span className="inline-block h-0.5 w-4 translate-y-[-3px] bg-aubergine align-middle" /> Right now
         {prevRatios && (
           <>
@@ -181,10 +180,10 @@ export default function TransformationVisual({ dimensions, priorities = [], prev
               type="button"
               onClick={() => setSelectedKey(d.key)}
               aria-pressed={active}
-              className={`rounded-lg border px-4 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-plum ${
+              className={`rounded-md border px-3.5 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-midnight ${
                 active
-                  ? "border-aubergine bg-aubergine text-cream"
-                  : "border-aubergine/30 text-aubergine hover:bg-greige"
+                  ? "border-midnight bg-midnight text-ivory"
+                  : "border-midnight/25 text-midnight hover:bg-tonal"
               }`}
             >
               {d.label}
@@ -194,13 +193,13 @@ export default function TransformationVisual({ dimensions, priorities = [], prev
       </div>
 
       {/* what the selected dimension is saying */}
-      <div className="mt-5 rounded-lg bg-greige p-5" aria-live="polite">
-        <h3 className="font-display text-2xl text-aubergine">{selected.label}</h3>
-        <p className="mt-1 text-sm text-ink/80">
+      <div className="mt-5 rounded-md bg-tonal p-5" aria-live="polite">
+        <h3 className="font-display text-xl text-midnight">{selected.label}</h3>
+        <p className="mt-1 text-sm text-mineral-deep">
           {selected.state ? `${selected.state} · ` : ""}
           {selected.score} out of 100
         </p>
-        <p className="mt-3 text-sm leading-relaxed text-ink/80">
+        <p className="mt-3 text-sm leading-relaxed text-midnight/80">
           This reflects how true the statements about {selected.label.toLowerCase()} felt to you when you answered.
         </p>
         {selectedPriority && (
@@ -209,23 +208,23 @@ export default function TransformationVisual({ dimensions, priorities = [], prev
           </p>
         )}
         {delta !== null && (
-          <p className="mt-3 text-sm leading-relaxed text-ink/80">
+          <p className="mt-3 text-sm leading-relaxed text-midnight/80">
             {delta === 0
               ? "Your answer here is the same as in your earlier assessment."
               : `Your answers here moved ${delta > 0 ? "up" : "down"} ${Math.abs(delta)} points since your earlier assessment. That is one signal, so check it against what you have actually lived.`}
           </p>
         )}
         <div className="mt-4 flex flex-wrap gap-4 text-sm">
-          <Link href="/coach" className="text-aubergine underline underline-offset-4">
+          <Link href="/coach" className="text-midnight underline underline-offset-4">
             Talk about {selected.label.toLowerCase()} with your coach
           </Link>
-          <Link href="/journal" className="text-aubergine underline underline-offset-4">
+          <Link href="/journal" className="text-midnight underline underline-offset-4">
             Write about it
           </Link>
         </div>
       </div>
 
-      <p className="mt-4 text-xs leading-relaxed text-ink/70">
+      <p className="mt-4 text-xs leading-relaxed text-mineral-deep">
         Each score comes from two statements you rated, scaled to 100. This picture is a mirror for reflection, not a
         measurement of who you are, and it can change as you do.
       </p>
