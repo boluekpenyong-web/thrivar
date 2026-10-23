@@ -88,6 +88,9 @@ export default async function HomePage() {
         <Link href="/coach" className={primaryButton}>
           Talk to your coach
         </Link>
+        <Link href="/week" className={secondaryButton}>
+          This week
+        </Link>
         <Link href="/journal" className={secondaryButton}>
           Journal
         </Link>

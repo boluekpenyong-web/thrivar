@@ -113,6 +113,21 @@ export async function POST(request: Request) {
       `Suggested next steps this week:\n${list(m.nextSteps).join("\n")}`;
   }
 
+  // This week's assignments (titles and progress only, never her notes or reflections).
+  const { data: weekRows } = await supabase
+    .from("weekly_assignments")
+    .select("week_number, title, status")
+    .eq("user_id", user.id)
+    .order("week_number", { ascending: false })
+    .order("created_at", { ascending: true })
+    .limit(8);
+  if (weekRows && weekRows.length > 0) {
+    const current = weekRows.filter((r) => r.week_number === weekRows[0].week_number);
+    context +=
+      `\n\nHer assignments for week ${weekRows[0].week_number}:\n` +
+      current.map((r) => `- ${r.title} [${String(r.status).replace("_", " ")}]`).join("\n");
+  }
+
   const systemPrompt =
     "You are a warm, grounded coach for women, like a close, wise older sister who happens to be a great coach. " +
     "You are not a therapist, a chatbot, or a customer service agent. Sound like a real person talking to her, " +
@@ -133,6 +148,8 @@ export async function POST(request: Request) {
     "mentions her safety, or it is clear she needs support beyond coaching. Instead give her the next piece of work: " +
     "a short reflection to write, a small experiment, or a decision to make, and stay with her on it. " +
     "If the map's suggested steps include reaching out to someone, do not repeat that; offer a step you can guide her through here.\n" +
+    "- If the background lists her assignments for the week, you can help her with them, one at a time, when it fits. " +
+    "Never nag and never shame her for ones she has not started.\n" +
     "- Give direction, not only questions. When she has shared enough, answer in this shape: " +
     "a short, human acknowledgement of what she said, one clear observation or reframe in plain words, " +
     "and one small, concrete step she can take today or this week. Then, only if it helps, one simple question.\n" +
