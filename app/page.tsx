@@ -36,6 +36,7 @@ export default async function Landing() {
         <h1 className="max-w-2xl font-display text-4xl leading-[1.15] text-midnight sm:text-5xl">
           The intelligence behind your becoming.
         </h1>
+        <span className="mt-8 block h-px w-12 bg-champagne" aria-hidden="true" />
         <p className="mt-6 max-w-md text-lg leading-relaxed text-mineral-deep">
           Your life is connected. Your growth should be, too.
         </p>

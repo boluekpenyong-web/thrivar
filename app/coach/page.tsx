@@ -239,7 +239,7 @@ export default function CoachPage() {
             <div ref={endRef} />
           </div>
 
-          <div className="sticky bottom-0 flex gap-2 border-t border-midnight/15 bg-ivory py-3">
+          <div className="sticky bottom-14 flex gap-2 border-t border-midnight/15 bg-ivory py-3">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -253,7 +253,7 @@ export default function CoachPage() {
             <button
               onClick={send}
               disabled={loading || loadingThread || !input.trim()}
-              className="rounded-md bg-midnight px-6 py-3 text-base text-ivory transition-colors hover:bg-plum disabled:opacity-50"
+              className="rounded-md bg-midnight px-6 py-3 text-base text-ivory transition-colors hover:bg-plum disabled:bg-mineral disabled:text-ivory disabled:hover:bg-mineral"
             >
               Send
             </button>

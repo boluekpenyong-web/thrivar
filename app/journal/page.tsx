@@ -48,6 +48,7 @@ export default function JournalPage() {
   return (
     <main className="mx-auto max-w-[640px] px-5 pb-20 pt-10 text-midnight sm:pt-14">
       <h1 className="font-display text-3xl text-midnight sm:text-4xl">Journal</h1>
+      <span className="mt-4 block h-px w-10 bg-champagne" aria-hidden="true" />
       <p className="mt-3 leading-relaxed text-midnight/80">
         Write what is on your mind. Only you can see this.
       </p>
@@ -67,7 +68,7 @@ export default function JournalPage() {
         type="button"
         onClick={save}
         disabled={saving || !text.trim()}
-        className="mt-3 rounded-md bg-midnight px-6 py-2.5 text-sm text-ivory transition-colors hover:bg-plum focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-midnight disabled:opacity-50"
+        className="mt-3 rounded-md bg-midnight px-6 py-2.5 text-sm text-ivory transition-colors hover:bg-plum focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-midnight disabled:bg-mineral disabled:text-ivory disabled:hover:bg-mineral"
       >
         {saving ? "Saving..." : "Save entry"}
       </button>
@@ -83,7 +84,7 @@ export default function JournalPage() {
           <p className="text-sm text-mineral-deep">No entries yet. Your first one will appear here.</p>
         )}
         {entries.map((e) => (
-          <article key={e.id} className="border-t border-midnight/15 py-5">
+          <article key={e.id} className="border-t border-champagne/70 py-5">
             <p className="text-xs uppercase tracking-[0.14em] text-mineral-deep">
               {new Date(e.created_at).toLocaleString("en-GB", {
                 day: "numeric",

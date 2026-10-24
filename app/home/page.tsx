@@ -120,6 +120,7 @@ export default async function HomePage() {
       <div className="grid gap-x-14 gap-y-10 lg:grid-cols-2 lg:items-start">
         <div className="lg:col-start-1 lg:row-start-1">
           <h1 className="font-display text-3xl text-midnight sm:text-4xl">Welcome back</h1>
+          <span className="mt-4 block h-px w-10 bg-champagne" aria-hidden="true" />
 
           {hasMap ? (
             <div className="mt-8">
@@ -166,7 +167,7 @@ export default async function HomePage() {
         {next && (
           <div className="lg:col-start-1 lg:row-start-2">
             <p className={label}>Your next step</p>
-            <div className="mt-2 border-t border-midnight/15 pt-4">
+            <div className="mt-2 border-t border-champagne pt-4">
               <h2 className="font-display text-xl text-midnight">{next.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-midnight/80">{next.body}</p>
               <div className="mt-4">
@@ -185,7 +186,7 @@ export default async function HomePage() {
 
       {/* The full map, for reading and revisiting */}
       {hasMap && (
-        <section id="map" className="mt-20 scroll-mt-6 border-t border-midnight/15 pt-10">
+        <section id="map" className="mt-20 scroll-mt-6 border-t border-champagne pt-10">
           <h2 className="font-display text-2xl text-midnight">Your Transformation Map</h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-mineral-deep">
             A reflection of where you are right now. It is not a verdict on who you are, and it can change as you do.
@@ -193,14 +194,14 @@ export default async function HomePage() {
 
           <div className="mt-8 grid gap-x-14 gap-y-8 md:grid-cols-2">
             {textEntries.map(([k, v]) => (
-              <div key={k}>
+              <div key={k} className="border-l-2 border-champagne pl-4">
                 <h3 className="text-sm font-medium text-midnight">{sectionLabel(k)}</h3>
                 <p className="mt-1 leading-relaxed text-midnight/85">{v}</p>
               </div>
             ))}
 
             {strengths.length > 0 && (
-              <div>
+              <div className="border-l-2 border-champagne pl-4">
                 <h3 className="text-sm font-medium text-midnight">Strengths to build on</h3>
                 <ul className="mt-1 list-disc space-y-1 pl-5 leading-relaxed text-midnight/85">
                   {strengths.map((s, i) => (
@@ -211,7 +212,7 @@ export default async function HomePage() {
             )}
 
             {nextSteps.length > 0 && (
-              <div>
+              <div className="border-l-2 border-champagne pl-4">
                 <h3 className="text-sm font-medium text-midnight">Next steps from your map</h3>
                 <ul className="mt-1 list-disc space-y-1 pl-5 leading-relaxed text-midnight/85">
                   {nextSteps.map((s, i) => (
@@ -225,14 +226,14 @@ export default async function HomePage() {
       )}
 
       {/* Secondary: the four ways to work with it */}
-      <section className="mt-20 border-t border-midnight/15 pt-10">
+      <section className="mt-20 border-t border-champagne pt-10">
         <h2 className="font-display text-2xl text-midnight">Continue your work</h2>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f) => (
             <li key={f.href}>
               <Link
                 href={f.href}
-                className={`block h-full rounded-md border border-midnight/15 p-5 transition-colors hover:border-midnight/40 hover:bg-tonal ${focusRing}`}
+                className={`block h-full rounded-md border border-champagne p-5 transition-colors hover:border-midnight/50 hover:bg-tonal ${focusRing}`}
               >
                 <span className="font-display text-lg text-midnight">{f.title}</span>
                 <span className="mt-2 block text-sm leading-relaxed text-midnight/75">{f.body}</span>

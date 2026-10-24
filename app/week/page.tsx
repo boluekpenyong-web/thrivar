@@ -129,6 +129,7 @@ export default async function WeekPage() {
   return (
     <main className="mx-auto max-w-[640px] px-5 pb-20 pt-10 text-midnight sm:pt-14">
       <h1 className="font-display text-3xl text-midnight sm:text-4xl">Weekly Assessment</h1>
+      <span className="mt-4 block h-px w-10 bg-champagne" aria-hidden="true" />
       <p className="mt-3 leading-relaxed text-midnight/80">
         {hasWeek
           ? `Week ${weekNumber}${startedLabel ? `, started ${startedLabel}` : ""}. Review the week in your own words, then set the next one.`
@@ -136,7 +137,7 @@ export default async function WeekPage() {
       </p>
 
       {hasMap && focusWhy && (
-        <div className="mt-8 border-t border-midnight/15 pt-5">
+        <div className="mt-8 border-t border-champagne pt-5">
           <p className="text-xs uppercase tracking-[0.14em] text-mineral-deep">
             Your focus right now{focusStage ? ` · ${capitalise(focusStage)}` : ""}
           </p>

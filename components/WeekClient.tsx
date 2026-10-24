@@ -347,7 +347,7 @@ export default function WeekClient({
         {showSteps && (
           <div className="mt-5 space-y-4">
             {assignments.map((a) => (
-              <article key={a.id} className="rounded-md border border-midnight/15 p-5">
+              <article key={a.id} className="rounded-md border border-champagne p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-display text-lg text-midnight">{a.title}</h3>
                   {a.dimension && (
@@ -421,7 +421,7 @@ export default function WeekClient({
       </section>
 
       {/* The assessment */}
-      <section className="mt-14 border-t border-midnight/15 pt-10" aria-labelledby="assess-heading">
+      <section className="mt-14 border-t border-champagne pt-10" aria-labelledby="assess-heading">
         <h2 id="assess-heading" className="font-display text-2xl text-midnight">
           {done ? `Your assessment of week ${weekNumber}` : "Assess your week"}
         </h2>
@@ -444,7 +444,7 @@ export default function WeekClient({
                     className={`block w-full text-left ${focusRing}`}
                   >
                     <span
-                      className={`block h-1 rounded-full ${i <= step ? "bg-midnight" : "bg-midnight/15"}`}
+                      className={`block h-1 rounded-full ${i === step ? "bg-midnight" : i < step ? "bg-champagne" : "bg-midnight/15"}`}
                       aria-hidden="true"
                     />
                     <span
@@ -751,7 +751,7 @@ function History({
 }) {
   if (items.length === 0) return null;
   return (
-    <section className="mt-14 border-t border-midnight/15 pt-10" aria-labelledby="history-heading">
+    <section className="mt-14 border-t border-champagne pt-10" aria-labelledby="history-heading">
       <h2 id="history-heading" className="font-display text-2xl text-midnight">
         Previous assessments
       </h2>

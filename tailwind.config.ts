@@ -18,7 +18,7 @@ const config: Config = {
         midnight: "#202039", // authority: key text, selected states, primary buttons
         ivory: "#F6F2EA", // page background and the Intelligence card
         champagne: "#C5B38B", // fine details only, never body text
-        mineral: { DEFAULT: "#777F91", deep: "#565D70" }, // DEFAULT for lines and large text; deep for small secondary text (readable on ivory)
+        mineral: { DEFAULT: "#777F91", deep: "#646C7E" }, // DEFAULT for lines and large text; deep (#646C7E) for small secondary text, still clearly slate and readable on ivory
         tonal: "#ECE7DC", // quiet tonal surface for panels on ivory
 
         // Older names, now mapped to the new palette

@@ -68,18 +68,19 @@ export default async function DashboardPage() {
         {hasMap ? (
           <>
             <h1 className="font-display text-3xl text-midnight">Your current landscape</h1>
-            <p className="mt-4 mb-10 text-lg leading-relaxed text-midnight">{whereYouAre}</p>
+            <span className="mt-4 block h-px w-10 bg-champagne" aria-hidden="true" />
+            <p className="mt-6 mb-10 text-lg leading-relaxed text-midnight">{whereYouAre}</p>
 
             {(strongest || strain) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
                 {strongest && (
-                  <div className="rounded-md p-5 border border-midnight/15">
+                  <div className="rounded-md p-5 border border-champagne">
                     <p className="text-xs uppercase tracking-[0.14em] text-mineral-deep mb-1">Strongest foundation</p>
                     <p className="text-midnight font-medium">{strongest}</p>
                   </div>
                 )}
                 {strain && (
-                  <div className="rounded-md p-5 border border-midnight/15">
+                  <div className="rounded-md p-5 border border-champagne">
                     <p className="text-xs uppercase tracking-[0.14em] text-mineral-deep mb-1">Primary strain</p>
                     <p className="text-midnight font-medium">{strain}</p>
                     {secondary && <p className="text-xs text-mineral-deep mt-1">Also: {secondary}</p>}
@@ -115,7 +116,7 @@ export default async function DashboardPage() {
             )}
 
             {priorities.length > 0 && (
-              <div className="rounded-md p-6 bg-tonal mb-8">
+              <div className="rounded-md p-6 bg-tonal border-l-2 border-champagne mb-8">
                 <p className={label}>Where attention may help</p>
                 <ul className="space-y-3">
                   {priorities.map((p) => (
@@ -146,6 +147,7 @@ export default async function DashboardPage() {
         ) : (
           <>
             <h1 className="font-display text-3xl text-midnight mb-6">Your current landscape</h1>
+            <span className="-mt-2 mb-6 block h-px w-10 bg-champagne" aria-hidden="true" />
             <p className="text-sm text-midnight/80 mb-10 leading-relaxed">
               Your full Transformation Map hasn&apos;t been created yet. Here&apos;s the raw picture from your
               assessment instead. You can generate your map from Home.
@@ -156,7 +158,7 @@ export default async function DashboardPage() {
         <div className="space-y-5 mb-6">
           <p className={label}>Your six pillars, in detail</p>
           {PILLARS.map((p) => (
-            <div key={p.key} className="flex items-center justify-between py-3 border-b border-midnight/10">
+            <div key={p.key} className="flex items-center justify-between py-3 border-b border-champagne/60">
               <div>
                 <p className="text-midnight font-medium">{p.label}</p>
                 <p className="text-sm text-mineral-deep">{states[p.key] ?? ""}</p>

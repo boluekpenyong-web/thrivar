@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+// Top of the page: only the wordmark and Log out.
+// Bottom of the page: the four ways to work (plus Home), on every page except Home itself,
+// where the same four entry points already sit lower on the page.
 const links = [
-  { href: "/home", label: "Home" },
-  { href: "/week", label: "Weekly Assessment" },
-  { href: "/coach", label: "Coach" },
-  { href: "/journal", label: "Journal" },
-  { href: "/dashboard", label: "Pillars" },
+  { href: "/home", label: "Home", short: "Home" },
+  { href: "/week", label: "Weekly Assessment", short: "Assessment" },
+  { href: "/coach", label: "Coach", short: "Coach" },
+  { href: "/journal", label: "Journal", short: "Journal" },
+  { href: "/dashboard", label: "Pillars", short: "Pillars" },
 ];
 
 const focusRing =
@@ -16,43 +19,53 @@ const focusRing =
 
 export default function Nav() {
   const pathname = usePathname();
-  // Home is the wider, two-column page; every other page keeps the narrow reading width.
   const onHome = pathname === "/home";
   const width = onHome ? "max-w-[1040px]" : "max-w-[640px]";
+
   return (
-    <nav
-      aria-label="Main"
-      className={`mx-auto flex w-full ${width} flex-wrap items-center gap-x-5 gap-y-2 px-5 pt-5 text-midnight`}
-    >
-      <Link href="/" className={`mr-auto font-display text-xl tracking-[0.18em] text-midnight ${focusRing}`}>
-        THRIVAR
-      </Link>
-
-      {/* On Home the four entry points sit lower on the page, so the top bar stays quiet. */}
-      {!onHome && links.map((l) => {
-        const active = pathname === l.href;
-        return (
-          <Link
-            key={l.href}
-            href={l.href}
-            aria-current={active ? "page" : undefined}
-            className={`border-b-2 pb-0.5 text-sm transition-colors ${focusRing} ${
-              active ? "border-midnight text-midnight" : "border-transparent text-mineral-deep hover:text-midnight"
-            }`}
+    <>
+      <header className={`mx-auto flex w-full ${width} items-center justify-between px-5 pt-5 text-midnight`}>
+        <Link href="/" className={`font-display text-xl tracking-[0.18em] text-midnight ${focusRing}`}>
+          THRIVAR
+        </Link>
+        <form action="/api/logout" method="post">
+          <button
+            type="submit"
+            className={`text-sm text-mineral-deep transition-colors hover:text-midnight ${focusRing}`}
           >
-            {l.label}
-          </Link>
-        );
-      })}
+            Log out
+          </button>
+        </form>
+      </header>
 
-      <form action="/api/logout" method="post">
-        <button
-          type="submit"
-          className={`text-sm text-mineral-deep transition-colors hover:text-midnight ${focusRing}`}
+      {!onHome && (
+        <nav
+          aria-label="Main"
+          className="fixed inset-x-0 bottom-0 z-20 h-14 border-t border-midnight/15 bg-ivory"
         >
-          Log out
-        </button>
-      </form>
-    </nav>
+          <ul className="mx-auto flex h-full max-w-[760px]">
+            {links.map((l) => {
+              const active = pathname === l.href;
+              return (
+                <li key={l.href} className="flex-1">
+                  <Link
+                    href={l.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex h-full items-center justify-center border-t-[3px] px-1 text-center text-xs transition-colors sm:text-sm ${focusRing} ${
+                      active
+                        ? "border-champagne font-medium text-midnight"
+                        : "border-transparent text-mineral-deep hover:text-midnight"
+                    }`}
+                  >
+                    <span className="sm:hidden">{l.short}</span>
+                    <span className="hidden sm:inline">{l.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      )}
+    </>
   );
 }

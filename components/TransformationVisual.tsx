@@ -79,15 +79,15 @@ export default function TransformationVisual({ dimensions, priorities = [], prev
             points={polygon(Array(n).fill(level))}
             fill="none"
             stroke={CHAMPAGNE}
-            strokeWidth={1}
-            opacity={level === 1 ? 0.9 : 0.55}
+            strokeWidth={1.25}
+            opacity={level === 1 ? 1 : 0.75}
           />
         ))}
 
         {/* spokes */}
         {dimensions.map((d, i) => {
           const [x, y] = pt(i, n, 1);
-          return <line key={d.key} x1={CX} y1={CY} x2={x} y2={y} stroke={CHAMPAGNE} strokeWidth={1} opacity={0.55} />;
+          return <line key={d.key} x1={CX} y1={CY} x2={x} y2={y} stroke={CHAMPAGNE} strokeWidth={1.25} opacity={0.85} />;
         })}
 
         {/* earlier assessment (dashed) */}
@@ -96,9 +96,9 @@ export default function TransformationVisual({ dimensions, priorities = [], prev
             points={polygon(prevRatios)}
             fill="none"
             stroke={PLUM}
-            strokeWidth={1.5}
+            strokeWidth={2}
             strokeDasharray="5 4"
-            opacity={0.7}
+            opacity={0.95}
           />
         )}
 
@@ -112,7 +112,7 @@ export default function TransformationVisual({ dimensions, priorities = [], prev
           const isPriority = priorityKeys.includes(d.key);
           return (
             <g key={d.key} onClick={() => setSelectedKey(d.key)} style={{ cursor: "pointer" }}>
-              {isPriority && <circle cx={x} cy={y} r={12} fill="none" stroke={CHAMPAGNE} strokeWidth={2} />}
+              {isPriority && <circle cx={x} cy={y} r={12} fill="none" stroke={CHAMPAGNE} strokeWidth={3} />}
               <circle cx={x} cy={y} r={isSelected ? 7 : 5} fill={isSelected ? CREAM : AUBERGINE} stroke={AUBERGINE} strokeWidth={2} />
               {/* larger invisible target for touch */}
               <circle cx={x} cy={y} r={18} fill="transparent" />
